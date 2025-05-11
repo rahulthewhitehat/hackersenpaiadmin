@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mrcavirtualsadmin/providers/chapter_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/student_provider.dart';
 import 'providers/course_provider.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => StudentProvider()),
         ChangeNotifierProvider(create: (_) => CourseProvider()),
         ChangeNotifierProvider(create: (_) => VideoProvider()),
+        ChangeNotifierProvider(create: (_) => ChapterProvider()),
       ],
       child: MaterialApp(
         title: 'Mr CA Virtuals',

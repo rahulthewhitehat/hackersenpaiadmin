@@ -1,44 +1,32 @@
 import 'package:flutter/foundation.dart';
-import '../models/video_model.dart';
+import '../models/chapter_model.dart';
 import '../services/firebase_service.dart';
 
-class VideoProvider with ChangeNotifier {
+class ChapterProvider with ChangeNotifier {
   final FirebaseService _firebaseService = FirebaseService();
-  List<Video> _videos = [];
+  List<Chapter> _chapters = [];
   bool _isLoading = false;
   String? _error;
   String? _currentCourseId;
-  String? _currentChapterId; // Added field
 
-  List<Video> get videos => _videos;
+  List<Chapter> get chapters => _chapters;
   bool get isLoading => _isLoading;
   String? get error => _error;
   String? get currentCourseId => _currentCourseId;
-  String? get currentChapterId => _currentChapterId; // Added getter
 
   void setCurrentCourse(String courseId) {
     _currentCourseId = courseId;
-    // Clear videos when course changes
-    _videos = [];
-    _currentChapterId = null;
-    notifyListeners();
+    fetchChapters(courseId);
   }
 
-  void setCurrentChapter(String chapterId) {
-    _currentChapterId = chapterId;
-    if (_currentCourseId != null) {
-      fetchVideos(_currentCourseId!, chapterId);
-    }
-  }
-
-  void fetchVideos(String courseId, String chapterId) {
+  void fetchChapters(String courseId) {
     _isLoading = true;
-    _videos = [];
+    _chapters = [];
     notifyListeners();
 
-    _firebaseService.getVideos(courseId, chapterId).listen(
-          (videosList) {
-        _videos = videosList;
+    _firebaseService.getChapters(courseId).listen(
+          (chaptersList) {
+        _chapters = chaptersList;
         _isLoading = false;
         _error = null;
         notifyListeners();
@@ -51,13 +39,13 @@ class VideoProvider with ChangeNotifier {
     );
   }
 
-  Future<void> addVideo(Video video) async {
+  Future<void> addChapter(Chapter chapter) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      await _firebaseService.addVideo(video);
+      await _firebaseService.addChapter(chapter);
 
       _isLoading = false;
       notifyListeners();
@@ -68,13 +56,13 @@ class VideoProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateVideo(Video video) async {
+  Future<void> updateChapter(Chapter chapter) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      await _firebaseService.updateVideo(video);
+      await _firebaseService.updateChapter(chapter);
 
       _isLoading = false;
       notifyListeners();
@@ -85,13 +73,13 @@ class VideoProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteVideo(Video video) async {
+  Future<void> deleteChapter(Chapter chapter) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      await _firebaseService.deleteVideo(video);
+      await _firebaseService.deleteChapter(chapter);
 
       _isLoading = false;
       notifyListeners();

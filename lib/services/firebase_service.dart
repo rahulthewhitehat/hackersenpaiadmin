@@ -1,5 +1,6 @@
 // services/firebase_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/chapter_model.dart';
 import '../models/student_model.dart';
 import '../models/course_model.dart';
 import '../models/video_model.dart';
@@ -59,12 +60,83 @@ class FirebaseService {
     }
   }
 
+  // Chapter Methods
+  Future<void> addChapter(Chapter chapter) async {
+    try {
+      await _firestore
+          .collection('courses')
+          .doc(chapter.courseId)
+          .collection('chapters')
+          .add(chapter.toJson());
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Stream<List<Chapter>> getChapters(String courseId) {
+    return _firestore
+        .collection('courses')
+        .doc(courseId)
+        .collection('chapters')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data();
+        data['course_id'] = courseId;
+        return Chapter.fromJson(data, doc.id);
+      }).toList();
+    });
+  }
+
+  Future<void> updateChapter(Chapter chapter) async {
+    try {
+      await _firestore
+          .collection('courses')
+          .doc(chapter.courseId)
+          .collection('chapters')
+          .doc(chapter.id)
+          .update(chapter.toJson());
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> deleteChapter(Chapter chapter) async {
+    try {
+      // First delete all videos in the chapter
+      final videosSnapshot = await _firestore
+          .collection('courses')
+          .doc(chapter.courseId)
+          .collection('chapters')
+          .doc(chapter.id)
+          .collection('videos')
+          .get();
+
+      for (var doc in videosSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Then delete the chapter
+      await _firestore
+          .collection('courses')
+          .doc(chapter.courseId)
+          .collection('chapters')
+          .doc(chapter.id)
+          .delete();
+    } catch (e) {
+      throw e;
+    }
+  }
+
   // Course Methods
   Future<void> addCourse(Course course) async {
     try {
-      await _firestore.collection('courses').add(course.toJson());
+      await _firestore
+          .collection('courses')
+          .doc(course.name) // Use course name as document ID
+          .set(course.toJson());
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -82,7 +154,7 @@ class FirebaseService {
         course.toJson(),
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -106,12 +178,14 @@ class FirebaseService {
     }
   }
 
-  // Video Methods
+  // Updated Video Methods
   Future<void> addVideo(Video video) async {
     try {
       await _firestore
           .collection('courses')
           .doc(video.courseId)
+          .collection('chapters')
+          .doc(video.chapterId)
           .collection('videos')
           .add(video.toJson());
     } catch (e) {
@@ -119,16 +193,19 @@ class FirebaseService {
     }
   }
 
-  Stream<List<Video>> getVideos(String courseId) {
+  Stream<List<Video>> getVideos(String courseId, String chapterId) {
     return _firestore
         .collection('courses')
         .doc(courseId)
+        .collection('chapters')
+        .doc(chapterId)
         .collection('videos')
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data();
         data['course_id'] = courseId;
+        data['chapter_id'] = chapterId;
         return Video.fromJson(data, doc.id);
       }).toList();
     });
@@ -139,6 +216,8 @@ class FirebaseService {
       await _firestore
           .collection('courses')
           .doc(video.courseId)
+          .collection('chapters')
+          .doc(video.chapterId)
           .collection('videos')
           .doc(video.id)
           .update(video.toJson());
@@ -152,6 +231,8 @@ class FirebaseService {
       await _firestore
           .collection('courses')
           .doc(video.courseId)
+          .collection('chapters')
+          .doc(video.chapterId)
           .collection('videos')
           .doc(video.id)
           .delete();

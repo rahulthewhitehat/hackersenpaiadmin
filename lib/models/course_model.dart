@@ -25,7 +25,7 @@ class Course {
   }) {
     return Course(
       id: id,
-      name: name ?? this.name,
+      name: id
     );
   }
 }

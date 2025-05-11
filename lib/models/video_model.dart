@@ -1,10 +1,10 @@
-// models/video_model.dart
 class Video {
   final String id;
   final String name;
   final String description;
   final String link;
   final String courseId;
+  final String chapterId; // Added chapterId
 
   Video({
     required this.id,
@@ -12,6 +12,7 @@ class Video {
     required this.description,
     required this.link,
     required this.courseId,
+    required this.chapterId, // Added parameter
   });
 
   factory Video.fromJson(Map<String, dynamic> json, String id) {
@@ -21,6 +22,7 @@ class Video {
       description: json['description'] ?? '',
       link: json['link'] ?? '',
       courseId: json['course_id'] ?? '',
+      chapterId: json['chapter_id'] ?? '', // Added field
     );
   }
 
@@ -30,6 +32,7 @@ class Video {
       'description': description,
       'link': link,
       'course_id': courseId,
+      'chapter_id': chapterId, // Added field
     };
   }
 
@@ -37,6 +40,7 @@ class Video {
     String? name,
     String? description,
     String? link,
+    String? chapterId, // Added parameter
   }) {
     return Video(
       id: id,
@@ -44,6 +48,7 @@ class Video {
       description: description ?? this.description,
       link: link ?? this.link,
       courseId: courseId,
+      chapterId: chapterId ?? this.chapterId, // Added field
     );
   }
 }
