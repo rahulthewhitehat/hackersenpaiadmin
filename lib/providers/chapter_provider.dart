@@ -45,7 +45,22 @@ class ChapterProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      await _firebaseService.addChapter(chapter);
+      // Determine the next order value
+      int nextOrder = 0;
+      if (_chapters.isNotEmpty) {
+        nextOrder = _chapters.length;
+      }
+
+      // Create a new chapter with the determined order
+      final newChapter = Chapter(
+        id: chapter.id,
+        name: chapter.name,
+        description: chapter.description,
+        courseId: chapter.courseId,
+        order: nextOrder,
+      );
+
+      await _firebaseService.addChapter(newChapter);
 
       _isLoading = false;
       notifyListeners();
@@ -80,6 +95,52 @@ class ChapterProvider with ChangeNotifier {
       notifyListeners();
 
       await _firebaseService.deleteChapter(chapter);
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  // Optional: Method to reorder chapters (if you want to implement drag and drop)
+  Future<void> reorderChapter(int oldIndex, int newIndex) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      // Adjust for removing the item
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+
+      // Get the chapter that's being moved
+      final Chapter movedChapter = _chapters[oldIndex];
+
+      // Create a batch of updates for all affected chapters
+      List<Chapter> updatedChapters = List.from(_chapters);
+      updatedChapters.removeAt(oldIndex);
+      updatedChapters.insert(newIndex, movedChapter);
+
+      // Update the order of each chapter
+      for (int i = 0; i < updatedChapters.length; i++) {
+        Chapter chapter = updatedChapters[i];
+        if (chapter.order != i) {
+          // Create updated chapter with new order
+          Chapter updatedChapter = Chapter(
+            id: chapter.id,
+            name: chapter.name,
+            description: chapter.description,
+            courseId: chapter.courseId,
+            order: i,
+          );
+
+          await _firebaseService.updateChapter(updatedChapter);
+        }
+      }
 
       _isLoading = false;
       notifyListeners();

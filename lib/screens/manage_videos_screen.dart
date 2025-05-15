@@ -92,6 +92,11 @@ class _ManageVideosScreenState extends State<ManageVideosScreen> {
       final videoProvider = Provider.of<VideoProvider>(context, listen: false);
 
       if (_isEditing && _currentVideoId != null) {
+        // Find the current video to get its order
+        final currentVideo = videoProvider.videos.firstWhere(
+              (v) => v.id == _currentVideoId,
+        );
+
         final updatedVideo = Video(
           id: _currentVideoId!,
           name: _nameController.text.trim(),
@@ -99,6 +104,7 @@ class _ManageVideosScreenState extends State<ManageVideosScreen> {
           link: _linkController.text.trim(),
           courseId: widget.course.id,
           chapterId: _selectedChapter!.id,
+          order: currentVideo.order, // Preserve the order
         );
         await videoProvider.updateVideo(updatedVideo);
       } else {
@@ -109,6 +115,7 @@ class _ManageVideosScreenState extends State<ManageVideosScreen> {
           link: _linkController.text.trim(),
           courseId: widget.course.id,
           chapterId: _selectedChapter!.id,
+          order: 0, // Will be set properly in the provider
         );
         await videoProvider.addVideo(newVideo);
       }
@@ -355,7 +362,7 @@ class _ManageVideosScreenState extends State<ManageVideosScreen> {
                           const SizedBox(height: 16),
                           CustomTextField(
                             label: 'Video Link',
-                            hint: 'Enter Google Drive link',
+                            hint: 'Enter YouTube link',
                             controller: _linkController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {

@@ -1,65 +1,43 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SubjectSelector extends StatefulWidget {
-  final List<String> selectedSubjects;
-  final Function(List<String>) onChanged;
+  final Map<String, String> selectedSubjects;
+  final Function(Map<String, String>) onChanged;
 
   const SubjectSelector({
-    super.key,
+    Key? key,
     required this.selectedSubjects,
     required this.onChanged,
-  });
+  }) : super(key: key);
 
   @override
-  State<SubjectSelector> createState() => _SubjectSelectorState();
+  _SubjectSelectorState createState() => _SubjectSelectorState();
 }
 
 class _SubjectSelectorState extends State<SubjectSelector> {
-  late List<String> _selectedSubjects;
+
   List<String> _availableSubjects = [];
-  bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _selectedSubjects = List.from(widget.selectedSubjects);
-    _fetchSubjectsFromFirestore();
+    loadSubjects();
   }
 
-  Future<void> _fetchSubjectsFromFirestore() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+  Future<void> loadSubjects() async {
+    _availableSubjects = await fetchAvailableSubjects();
+    setState(() {}); // Refresh UI
+  }
 
-      // Get reference to the courses collection
-      final coursesRef = FirebaseFirestore.instance.collection('courses');
+  Future<List<String>> fetchAvailableSubjects() async {
+    final snapshot = await FirebaseFirestore.instance.collection('courses').get();
 
-      // Fetch all documents from the courses collection
-      final querySnapshot = await coursesRef.get();
+    // Extracting document IDs as course names
+    final subjects = snapshot.docs.map((doc) => doc.id).toList();
 
-      // Extract subject names from the documents
-      final subjects = querySnapshot.docs.map((doc) {
-        // Assuming each document has a 'name' field for the subject
-        // Adjust the field name if it's different in your Firestore structure
-        return doc.data()['name'] as String;
-      }).toList();
-
-      // Update state with fetched subjects
-      setState(() {
-        _availableSubjects = subjects;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to load subjects: $e';
-        _isLoading = false;
-      });
-      debugPrint('Error fetching subjects: $e');
-    }
+    return subjects;
   }
 
   @override
@@ -67,77 +45,139 @@ class _SubjectSelectorState extends State<SubjectSelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Subjects',
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF333333),
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_isLoading)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else if (_error != null)
-                Center(
-                  child: Column(
-                    children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _availableSubjects.map((subject) {
+            final isSelected = widget.selectedSubjects.containsKey(subject);
+            final expiryDate = widget.selectedSubjects[subject] ?? '';
+
+            return GestureDetector(
+              onTap: () => _selectSubjectWithDate(subject, isSelected ? null : expiryDate),
+              child: Chip(
+                label: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(subject),
+                    if (isSelected && expiryDate.isNotEmpty)
                       Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
+                        'Expires: ${_formatDate(expiryDate)}',
+                        style: TextStyle(fontSize: 10, color: Colors.grey[700]),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _fetchSubjectsFromFirestore,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
-              else if (_availableSubjects.isEmpty)
-                  const Center(
-                    child: Text('No subjects available'),
-                  )
-                else
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _availableSubjects.map((subject) {
-                      final isSelected = _selectedSubjects.contains(subject);
-                      return FilterChip(
-                        selected: isSelected,
-                        label: Text(subject),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedSubjects.add(subject);
-                            } else {
-                              _selectedSubjects.remove(subject);
-                            }
-                            widget.onChanged(_selectedSubjects);
-                          });
-                        },
-                        selectedColor: const Color(0xFF3E64FF).withOpacity(0.2),
-                        checkmarkColor: const Color(0xFF3E64FF),
-                      );
-                    }).toList(),
-                  ),
-            ],
-          ),
+                  ],
+                ),
+                backgroundColor: isSelected
+                    ? const Color(0xFF3E64FF).withOpacity(0.2)
+                    : Colors.grey[200],
+                labelStyle: TextStyle(
+                  color: isSelected ? const Color(0xFF3E64FF) : Colors.black87,
+                ),
+                deleteIcon: isSelected
+                    ? const Icon(Icons.close, size: 16, color: Color(0xFF3E64FF))
+                    : null,
+                onDeleted: isSelected
+                    ? () {
+                  final updatedSubjects = Map<String, String>.from(widget.selectedSubjects);
+                  updatedSubjects.remove(subject);
+                  widget.onChanged(updatedSubjects);
+                }
+                    : null,
+              ),
+            );
+          }).toList(),
         ),
+        if (widget.selectedSubjects.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Selected Subjects with Expiry Dates:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                ...widget.selectedSubjects.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(entry.key),
+                        Text(
+                          _formatDate(entry.value),
+                          style: const TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        ],
       ],
     );
+  }
+
+  String _formatDate(String dateStr) {
+    if (dateStr.isEmpty) return 'No expiry';
+
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  Future<void> _selectSubjectWithDate(String subject, String? currentDate) async {
+    // If already selected, just remove it
+    if (widget.selectedSubjects.containsKey(subject)) {
+      final updatedSubjects = Map<String, String>.from(widget.selectedSubjects);
+      updatedSubjects.remove(subject);
+      widget.onChanged(updatedSubjects);
+      return;
+    }
+
+    // Otherwise show date picker
+    final DateTime initialDate = DateTime.now().add(const Duration(days: 365));
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 3650)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF3E64FF),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      final newExpiryDate = pickedDate.toIso8601String();
+      final updatedSubjects = Map<String, String>.from(widget.selectedSubjects);
+      updatedSubjects[subject] = newExpiryDate;
+      widget.onChanged(updatedSubjects);
+    }
   }
 }

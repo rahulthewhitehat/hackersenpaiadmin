@@ -1,4 +1,3 @@
-// screens/manage_students_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/student_model.dart';
@@ -23,7 +22,8 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  List<String> _selectedSubjects = [];
+  // Changed from List<String> to Map<String, String>
+  Map<String, String> _selectedSubjects = {};
   bool _isEditing = false;
   String? _currentStudentId;
 
@@ -43,7 +43,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
     _emailController.clear();
     _passwordController.clear();
     setState(() {
-      _selectedSubjects = [];
+      _selectedSubjects = {};
       _isEditing = false;
       _currentStudentId = null;
     });
@@ -55,7 +55,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
     _emailController.text = student.email;
     // We don't set password for security reasons
     setState(() {
-      _selectedSubjects = List.from(student.subjects);
+      _selectedSubjects = Map<String, String>.from(student.subjects);
       _isEditing = true;
       _currentStudentId = student.id;
     });

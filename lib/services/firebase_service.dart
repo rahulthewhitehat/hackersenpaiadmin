@@ -24,7 +24,7 @@ class FirebaseService {
         student.toJson(),
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -42,7 +42,7 @@ class FirebaseService {
         student.toJson(),
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -63,13 +63,28 @@ class FirebaseService {
   // Chapter Methods
   Future<void> addChapter(Chapter chapter) async {
     try {
+      // Get the count of existing chapters to determine the new order
+      QuerySnapshot chaptersSnapshot = await _firestore
+          .collection('courses')
+          .doc(chapter.courseId)
+          .collection('chapters')
+          .get();
+
+      // Create a map with the chapter data including the order
+      final chapterData = chapter.toJson();
+
+      // If order is not explicitly set, use the count of existing chapters
+      if (chapterData['order'] == 0) {
+        chapterData['order'] = chaptersSnapshot.docs.length;
+      }
+
       await _firestore
           .collection('courses')
           .doc(chapter.courseId)
           .collection('chapters')
-          .add(chapter.toJson());
+          .add(chapterData);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -78,6 +93,7 @@ class FirebaseService {
         .collection('courses')
         .doc(courseId)
         .collection('chapters')
+        .orderBy('order') // Order by the 'order' field
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -97,7 +113,7 @@ class FirebaseService {
           .doc(chapter.id)
           .update(chapter.toJson());
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -123,8 +139,11 @@ class FirebaseService {
           .collection('chapters')
           .doc(chapter.id)
           .delete();
+
+      // Update the order of remaining chapters
+     // await _reorderChaptersAfterDelete(chapter);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -174,22 +193,38 @@ class FirebaseService {
       // Then delete the course
       await _firestore.collection('courses').doc(courseId).delete();
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
-  // Updated Video Methods
   Future<void> addVideo(Video video) async {
     try {
+      // Get the count of existing videos to determine the new order
+      QuerySnapshot videosSnapshot = await _firestore
+          .collection('courses')
+          .doc(video.courseId)
+          .collection('chapters')
+          .doc(video.chapterId)
+          .collection('videos')
+          .get();
+
+      // Create a map with the video data including the order
+      final videoData = video.toJson();
+
+      // If order is not explicitly set, use the count of existing videos
+      if (videoData['order'] == 0) {
+        videoData['order'] = videosSnapshot.docs.length;
+      }
+
       await _firestore
           .collection('courses')
           .doc(video.courseId)
           .collection('chapters')
           .doc(video.chapterId)
           .collection('videos')
-          .add(video.toJson());
+          .add(videoData);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -200,6 +235,7 @@ class FirebaseService {
         .collection('chapters')
         .doc(chapterId)
         .collection('videos')
+        .orderBy('order') // Order by the 'order' field
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -222,7 +258,7 @@ class FirebaseService {
           .doc(video.id)
           .update(video.toJson());
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -236,8 +272,12 @@ class FirebaseService {
           .collection('videos')
           .doc(video.id)
           .delete();
+
+      // Update the order of remaining videos
+     // await _reorderVideosAfterDelete(video);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
+
 }

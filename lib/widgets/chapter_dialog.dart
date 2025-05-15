@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/chapter_model.dart';
-import 'custom_text_field.dart';
+import '../widgets/custom_button.dart';
+import '../widgets/custom_text_field.dart';
 
 class ChapterDialog extends StatefulWidget {
   final String courseId;
-  final Chapter? chapter; // If provided, we're editing an existing chapter
   final Function(Chapter) onSave;
+  final Chapter? chapter; // Optional chapter for editing
 
   const ChapterDialog({
-    Key? key,
+    super.key,
     required this.courseId,
-    this.chapter,
     required this.onSave,
-  }) : super(key: key);
+    this.chapter,
+  });
 
   @override
   _ChapterDialogState createState() => _ChapterDialogState();
@@ -22,11 +23,11 @@ class _ChapterDialogState extends State<ChapterDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // If we're editing, fill the fields
     if (widget.chapter != null) {
       _nameController.text = widget.chapter!.name;
       _descriptionController.text = widget.chapter!.description;
@@ -42,33 +43,52 @@ class _ChapterDialogState extends State<ChapterDialog> {
 
   void _saveChapter() {
     if (_formKey.currentState!.validate()) {
-      final chapter = Chapter(
-        id: widget.chapter?.id ?? '', // Empty if new chapter
+      setState(() {
+        _isLoading = true;
+      });
+
+      final newChapter = Chapter(
+        id: widget.chapter?.id ?? '', // Empty if new, existing ID if editing
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         courseId: widget.courseId,
+        order: widget.chapter?.order ?? 0, // Will be set in provider/service
       );
 
-      widget.onSave(chapter);
-      Navigator.pop(context, chapter);
+      widget.onSave(newChapter);
+      Navigator.of(context).pop(newChapter);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.chapter != null;
-
-    return AlertDialog(
-      title: Text(
-        isEditing ? 'Edit Chapter' : 'Create New Chapter',
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF3E64FF)),
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  const Icon(Icons.folder, color: Color(0xFF3E64FF)),
+                  const SizedBox(width: 8),
+                  Text(
+                    widget.chapter == null ? 'Create New Chapter' : 'Edit Chapter',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF3E64FF),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               CustomTextField(
                 label: 'Chapter Name',
                 hint: 'Enter chapter name',
@@ -93,31 +113,17 @@ class _ChapterDialogState extends State<ChapterDialog> {
                   return null;
                 },
               ),
+              const SizedBox(height: 24),
+              CustomButton(
+                label: widget.chapter == null ? 'Create Chapter' : 'Update Chapter',
+                onPressed: _saveChapter,
+                isLoading: _isLoading,
+                color: const Color(0xFF3E64FF),
+                icon: widget.chapter == null ? Icons.add : Icons.save,
+              ),
             ],
           ),
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-        ),
-        ElevatedButton(
-          onPressed: _saveChapter,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF3E64FF),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text(
-            isEditing ? 'Update' : 'Create',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
       ),
     );
   }
