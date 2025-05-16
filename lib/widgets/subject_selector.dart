@@ -7,10 +7,10 @@ class SubjectSelector extends StatefulWidget {
   final Function(Map<String, String>) onChanged;
 
   const SubjectSelector({
-    Key? key,
+    super.key,
     required this.selectedSubjects,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _SubjectSelectorState createState() => _SubjectSelectorState();
@@ -123,7 +123,7 @@ class _SubjectSelectorState extends State<SubjectSelector> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

@@ -105,7 +105,6 @@ class ChapterProvider with ChangeNotifier {
     }
   }
 
-  // Optional: Method to reorder chapters (if you want to implement drag and drop)
   Future<void> reorderChapter(int oldIndex, int newIndex) async {
     try {
       _isLoading = true;

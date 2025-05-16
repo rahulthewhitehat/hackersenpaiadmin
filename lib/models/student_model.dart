@@ -3,7 +3,7 @@ class Student {
   final String name;
   final String studentId;
   final String email;
-  final Map<String, String> subjects; // Changed from List<String> to Map<String, String>
+  final Map<String, String> subjects;
 
   Student({
     required this.id,

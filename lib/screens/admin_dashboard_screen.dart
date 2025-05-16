@@ -1,5 +1,3 @@
-// screens/admin_dashboard_screen.dart
-
 import 'package:flutter/material.dart';
 import 'manage_students_screen.dart';
 import 'manage_courses_screen.dart';
@@ -149,24 +147,6 @@ class AdminDashboardScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      /*
-                      _buildDashboardCard(
-                        context,
-                        icon: Icons.analytics_rounded,
-                        title: "Analytics",
-                        subtitle: "View",
-                        color: Colors.orange[400]!,
-                        onTap: () {},
-                      ),
-                      _buildDashboardCard(
-                        context,
-                        icon: Icons.settings_rounded,
-                        title: "Settings",
-                        subtitle: "Configure",
-                        color: Colors.grey[600]!,
-                        onTap: () {},
-                      ),
-                      */
                     ],
                   ),
                 ],

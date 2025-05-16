@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import '../models/course_model.dart';
 import '../services/firebase_service.dart';

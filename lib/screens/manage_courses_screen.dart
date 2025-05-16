@@ -1,4 +1,4 @@
-// screens/manage_courses_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/course_model.dart';

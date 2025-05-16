@@ -92,4 +92,22 @@ class StudentProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> resetStudentUniqueId(String studentId) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      await _firebaseService.resetStudentUniqueId(studentId);
+      // No need to refresh the list as this doesn't change any visible data
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 }

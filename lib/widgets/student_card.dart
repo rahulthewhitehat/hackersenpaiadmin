@@ -7,13 +7,15 @@ class StudentCard extends StatelessWidget {
   final Student student;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onResetId; // New callback for reset ID functionality
 
   const StudentCard({
-    Key? key,
+    super.key,
     required this.student,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+    required this.onResetId, // Add this parameter
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +75,53 @@ class StudentCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue[700]),
-                      onPressed: onEdit,
-                      tooltip: 'Edit',
+                // Replace the edit and delete buttons with a popup menu
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: 'Options',
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'edit':
+                        onEdit();
+                        break;
+                      case 'delete':
+                        onDelete();
+                        break;
+                      case 'reset_id':
+                        onResetId();
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, color: Colors.blue),
+                          SizedBox(width: 10),
+                          Text('Edit'),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: onDelete,
-                      tooltip: 'Delete',
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red),
+                          SizedBox(width: 10),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'reset_id',
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh, color: Colors.orange),
+                          SizedBox(width: 10),
+                          Text('Reset ID'),
+                        ],
+                      ),
                     ),
                   ],
                 ),

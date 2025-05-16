@@ -3,14 +3,14 @@ class Chapter {
   final String name;
   final String description;
   final String courseId;
-  final int order; // Added order field
+  final int order;
 
   Chapter({
     required this.id,
     required this.name,
     required this.description,
     required this.courseId,
-    required this.order, // New required parameter
+    required this.order,
   });
 
   factory Chapter.fromJson(Map<String, dynamic> json, String id) {
@@ -19,7 +19,7 @@ class Chapter {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       courseId: json['course_id'] ?? '',
-      order: json['order'] ?? 0, // Default to 0 if not present
+      order: json['order'] ?? 0,
     );
   }
 
@@ -28,7 +28,7 @@ class Chapter {
       'name': name,
       'description': description,
       'course_id': courseId,
-      'order': order, // Include order in JSON
+      'order': order,
     };
   }
 }

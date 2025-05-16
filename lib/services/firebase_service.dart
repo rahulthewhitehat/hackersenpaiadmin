@@ -147,6 +147,16 @@ class FirebaseService {
     }
   }
 
+  Future<void> resetStudentUniqueId(String studentId) async {
+    try {
+      // Use Firebase's FieldValue.delete() to completely remove the field
+      await _firestore.collection('users').doc(studentId).update({
+        'unique_id': FieldValue.delete(),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
   // Course Methods
   Future<void> addCourse(Course course) async {
     try {

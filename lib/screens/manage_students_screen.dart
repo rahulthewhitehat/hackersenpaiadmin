@@ -379,14 +379,28 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
                         student: student,
                         onEdit: () => _setupForEdit(student),
                         onDelete: () => _confirmDelete(student),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
+                        onResetId: () {
+                          // Show a confirmation dialog for resetting ID
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                title: const Text('Reset Unique ID'),
+                                content: const Text('This will remove the device-specific identifier. Are you sure?'),
+                                actions: [
+                                    TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                    onPressed: () {
+                                    Navigator.pop(context);
+                                    provider.resetStudentUniqueId(student.id);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                    content: Text('Unique ID has been reset'),
+                                    duration: Duration(seconds: 2),
+                                    ),);},
+                                child: const Text('Reset'),),],),);},),
+                          ))]));},
+                          ));
+                        }}

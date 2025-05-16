@@ -5,7 +5,7 @@ class Video {
   final String link;
   final String courseId;
   final String chapterId;
-  final int order; // Added order field
+  final int order;
 
   Video({
     required this.id,
@@ -14,7 +14,7 @@ class Video {
     required this.link,
     required this.courseId,
     required this.chapterId,
-    required this.order, // New required parameter
+    required this.order,
   });
 
   factory Video.fromJson(Map<String, dynamic> json, String id) {
@@ -25,7 +25,7 @@ class Video {
       link: json['link'] ?? '',
       courseId: json['course_id'] ?? '',
       chapterId: json['chapter_id'] ?? '',
-      order: json['order'] ?? 0, // Default to 0 if not present
+      order: json['order'] ?? 0,
     );
   }
 
@@ -36,7 +36,7 @@ class Video {
       'link': link,
       'course_id': courseId,
       'chapter_id': chapterId,
-      'order': order, // Include order in JSON
+      'order': order,
     };
   }
 
@@ -45,7 +45,7 @@ class Video {
     String? description,
     String? link,
     String? chapterId,
-    int? order, // Added parameter
+    int? order,
   }) {
     return Video(
       id: id,
@@ -54,7 +54,7 @@ class Video {
       link: link ?? this.link,
       courseId: courseId,
       chapterId: chapterId ?? this.chapterId,
-      order: order ?? this.order, // Include order
+      order: order ?? this.order,
     );
   }
 }
