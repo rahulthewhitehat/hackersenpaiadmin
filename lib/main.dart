@@ -6,10 +6,12 @@ import 'providers/student_provider.dart';
 import 'providers/course_provider.dart';
 import 'providers/video_provider.dart';
 import 'screens/admin_dashboard_screen.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(MyApp());
 }
