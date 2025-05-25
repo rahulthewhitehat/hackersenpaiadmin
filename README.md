@@ -19,7 +19,7 @@
         
     *   Add chapters under each course
         
-    *   Add videos under each chapter (name, description, and **Google Drive** video link)
+    *   Add videos under each chapter (name, description, and **YouTube** video link)
         
 
 *   *   Prevent screen recording and screenshots
