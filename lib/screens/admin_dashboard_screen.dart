@@ -72,7 +72,7 @@ class AdminDashboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Mr CA Virtuals',
+                          'Hacker Senpai',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -96,7 +96,7 @@ class AdminDashboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Welcome back, Kirubakaran!',
+                          'Welcome back, Rahul Babu M P!',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[700],

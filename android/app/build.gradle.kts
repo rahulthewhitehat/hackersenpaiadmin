@@ -11,7 +11,7 @@ dependencies{
 }
 
 android {
-    namespace = "com.kirubakaran.mrcavirtualsadmin"
+    namespace = "com.thewhitehats.hackersenpaiadmin"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.kirubakaran.mrcavirtualsadmin"
+        applicationId = "com.thewhitehats.hackersenpaiadmin"
         minSdkVersion(23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

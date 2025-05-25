@@ -59,7 +59,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'mr-ca-virtuals.firebasestorage.app',
     androidClientId: '699455540180-052bfg5l7qq9immjmbgarotr6g4bf196.apps.googleusercontent.com',
     iosClientId: '699455540180-uj7pjd20e8mcn5529b3nu5fdr4ao7qai.apps.googleusercontent.com',
-    iosBundleId: 'com.kirubakaran.mrcavirtualsadmin',
+    iosBundleId: 'com.thewhitehats.hackersenpaiadmin',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
